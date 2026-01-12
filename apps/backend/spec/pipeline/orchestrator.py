@@ -132,6 +132,7 @@ class SpecOrchestrator:
         additional_context: str = "",
         interactive: bool = False,
         phase_name: str | None = None,
+        inline_prompt: str | None = None,
     ) -> tuple[bool, str]:
         """Run an agent with the given prompt.
 
@@ -140,6 +141,7 @@ class SpecOrchestrator:
             additional_context: Additional context to add
             interactive: Whether to run in interactive mode
             phase_name: Name of the phase (for thinking budget lookup)
+            inline_prompt: Optional inline prompt content (overrides prompt_file)
 
         Returns:
             Tuple of (success, response_text)
@@ -158,6 +160,7 @@ class SpecOrchestrator:
             interactive,
             thinking_budget=thinking_budget,
             prior_phase_summaries=prior_summaries if prior_summaries else None,
+            inline_prompt=inline_prompt,
         )
 
     async def _store_phase_summary(self, phase_name: str) -> None:

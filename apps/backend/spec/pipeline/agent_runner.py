@@ -52,6 +52,7 @@ class AgentRunner:
         interactive: bool = False,
         thinking_budget: int | None = None,
         prior_phase_summaries: str | None = None,
+        inline_prompt: str | None = None,
     ) -> tuple[bool, str]:
         """Run an agent with the given prompt.
 
@@ -61,6 +62,7 @@ class AgentRunner:
             interactive: Whether to run in interactive mode
             thinking_budget: Token budget for extended thinking (None = disabled)
             prior_phase_summaries: Summaries from previous phases for context
+            inline_prompt: Optional inline prompt content (overrides prompt_file)
 
         Returns:
             Tuple of (success, response_text)
@@ -69,25 +71,34 @@ class AgentRunner:
         debug(
             "agent_runner",
             "Running spec creation agent",
-            prompt_file=prompt_file,
+            prompt_file=prompt_file if not inline_prompt else "(inline)",
             spec_dir=str(self.spec_dir),
             model=self.model,
             interactive=interactive,
         )
 
-        prompt_path = Path(__file__).parent.parent.parent / "prompts" / prompt_file
+        # Use inline prompt if provided, otherwise load from file
+        if inline_prompt:
+            prompt = inline_prompt
+            debug_detailed(
+                "agent_runner",
+                "Using inline prompt",
+                prompt_length=len(prompt),
+            )
+        else:
+            prompt_path = Path(__file__).parent.parent.parent / "prompts" / prompt_file
 
-        if not prompt_path.exists():
-            debug_error("agent_runner", f"Prompt file not found: {prompt_path}")
-            return False, f"Prompt not found: {prompt_path}"
+            if not prompt_path.exists():
+                debug_error("agent_runner", f"Prompt file not found: {prompt_path}")
+                return False, f"Prompt not found: {prompt_path}"
 
-        # Load prompt
-        prompt = prompt_path.read_text()
-        debug_detailed(
-            "agent_runner",
-            "Loaded prompt file",
-            prompt_length=len(prompt),
-        )
+            # Load prompt
+            prompt = prompt_path.read_text()
+            debug_detailed(
+                "agent_runner",
+                "Loaded prompt file",
+                prompt_length=len(prompt),
+            )
 
         # Add context
         prompt += f"\n\n---\n\n**Spec Directory**: {self.spec_dir}\n"
