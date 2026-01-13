@@ -80,6 +80,7 @@
 | **Isolated Workspaces** | All changes happen in git worktrees - your main branch stays safe |
 | **Self-Validating QA** | Built-in quality assurance loop catches issues before you review |
 | **AI-Powered Merge** | Automatic conflict resolution when integrating back to main |
+| **Archon Knowledge Base** 🆕 | Agents query past implementations, code examples, and proven patterns via RAG |
 | **Memory Layer** | Agents retain insights across sessions for smarter builds |
 | **GitHub/GitLab Integration** | Import issues, investigate with AI, create merge requests |
 | **Linear Integration** | Sync tasks with Linear for team progress tracking |
@@ -143,6 +144,115 @@ python run.py --spec 001 --merge
 ```
 
 See [guides/CLI-USAGE.md](guides/CLI-USAGE.md) for complete CLI documentation.
+
+---
+
+## Integrations
+
+Auto Claude integrates with powerful external services to enhance agent capabilities and provide cross-session learning.
+
+### Archon MCP - Knowledge-Driven Development 🆕
+
+**Enable agents to learn from past implementations, code examples, and proven patterns.**
+
+Archon provides RAG (Retrieval-Augmented Generation) search across past builds, allowing agents to:
+- Query for similar implementations before planning
+- Find code examples for unfamiliar technologies
+- Learn from known gotchas and best practices
+- Reference acceptance criteria patterns from past specs
+
+**Quick Setup:**
+
+1. **Install and run Archon MCP server** (see [Archon documentation](https://github.com/your-org/archon))
+
+2. **Enable in your project** - Create `.auto-claude/.env`:
+   ```bash
+   ARCHON_MCP_ENABLED=true
+   ARCHON_MCP_URL=http://localhost:8051/mcp  # Optional, this is default
+   ```
+
+3. **Agents automatically query Archon** during:
+   - **Planning** - Search for similar implementations
+   - **Coding** - Find code examples and patterns
+   - **Spec Creation** - Reference past requirements
+   - **QA** - Discover test scenarios and edge cases
+
+**Example Query:**
+```python
+# Planner searching for authentication patterns
+mcp__archon__rag_search_knowledge_base(
+    query="authentication patterns",
+    match_count=5
+)
+```
+
+**Query Tips:**
+- ✅ Keep queries SHORT (2-5 keywords): `"FastAPI middleware"`
+- ❌ Avoid long sentences: `"how to implement middleware in FastAPI application"`
+
+**Which agents use Archon:**
+- `planner` - Query for similar implementations
+- `coder` - Find code examples and gotchas
+- `spec_gatherer` - Reference past requirements
+- `spec_researcher` - Integration patterns
+- `qa_reviewer` - Test scenarios and validation patterns
+
+**Resources:**
+- [ARCHON_INTEGRATION_PLAN.md](ARCHON_INTEGRATION_PLAN.md) - Technical architecture
+- [guides/ARCHON_BEST_PRACTICES.md](guides/ARCHON_BEST_PRACTICES.md) - Query optimization guide
+
+### Graphiti Memory - Session Insights
+
+**Cross-session memory using knowledge graphs.**
+
+Graphiti stores insights, discoveries, and gotchas from each build session:
+- Automatic insight extraction during builds
+- Semantic search across past sessions
+- Multi-provider support (OpenAI, Anthropic, Ollama, etc.)
+
+**Setup:** Configure in `apps/backend/.env`:
+```bash
+GRAPHITI_ENABLED=true
+GRAPHITI_LLM_PROVIDER=openai
+GRAPHITI_EMBEDDER_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+```
+
+See `apps/backend/.env.example` for all configuration options.
+
+### Linear - Project Tracking
+
+**Sync tasks with Linear for team collaboration.**
+
+Automatically update Linear issues as agents progress through builds:
+- Create issues from specs
+- Update status as subtasks complete
+- Add comments with build progress
+
+**Setup:**
+```bash
+LINEAR_API_KEY=lin_api_...
+LINEAR_TEAM_ID=your-team-id  # Optional, auto-detects
+```
+
+Get your API key from [Linear Settings → API](https://linear.app/settings/api).
+
+### GitHub/GitLab - Issue Management
+
+**Import and investigate issues with AI assistance.**
+
+- Import issues directly into Auto Claude
+- AI-powered investigation and triage
+- Automatic PR/MR creation
+- Conflict resolution with AI assistance
+
+**GitHub:** Uses `gh` CLI (authenticate with `gh auth login`)
+
+**GitLab:** Uses `glab` CLI or personal access token:
+```bash
+GITLAB_TOKEN=glpat-...
+GITLAB_INSTANCE_URL=https://gitlab.com  # Optional
+```
 
 ---
 
