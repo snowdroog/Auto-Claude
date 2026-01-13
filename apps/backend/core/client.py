@@ -596,9 +596,14 @@ def load_project_mcp_config(project_dir: Path) -> dict:
     - LINEAR_MCP_ENABLED (default: true)
     - ELECTRON_MCP_ENABLED (default: false)
     - PUPPETEER_MCP_ENABLED (default: false)
+    - ARCHON_MCP_ENABLED (default: false)
+    - ARCHON_MCP_URL (default: http://localhost:8051/mcp)
+    - ARCHON_AGENTS (optional: comma-separated agent list)
     - AGENT_MCP_<agent>_ADD (per-agent MCP additions)
     - AGENT_MCP_<agent>_REMOVE (per-agent MCP removals)
     - CUSTOM_MCP_SERVERS (JSON array of custom server configs)
+
+    When ARCHON_MCP_ENABLED=true, automatically adds Archon to CUSTOM_MCP_SERVERS.
 
     Args:
         project_dir: Path to the project directory
@@ -616,6 +621,9 @@ def load_project_mcp_config(project_dir: Path) -> dict:
         "LINEAR_MCP_ENABLED",
         "ELECTRON_MCP_ENABLED",
         "PUPPETEER_MCP_ENABLED",
+        "ARCHON_MCP_ENABLED",
+        "ARCHON_MCP_URL",
+        "ARCHON_AGENTS",
     }
 
     try:
@@ -661,6 +669,29 @@ def load_project_mcp_config(project_dir: Path) -> dict:
                             config["CUSTOM_MCP_SERVERS"] = []
     except Exception as e:
         logger.debug(f"Failed to load project MCP config from {env_path}: {e}")
+
+    # Auto-configure Archon MCP server if enabled
+    if config.get("ARCHON_MCP_ENABLED", "").lower() == "true":
+        archon_url = config.get("ARCHON_MCP_URL", "http://localhost:8051/mcp")
+
+        # Initialize CUSTOM_MCP_SERVERS if not present
+        if "CUSTOM_MCP_SERVERS" not in config:
+            config["CUSTOM_MCP_SERVERS"] = []
+
+        # Check if Archon is already configured (avoid duplicates)
+        archon_exists = any(
+            server.get("id") == "archon"
+            for server in config["CUSTOM_MCP_SERVERS"]
+        )
+
+        if not archon_exists:
+            config["CUSTOM_MCP_SERVERS"].append({
+                "id": "archon",
+                "name": "Archon Knowledge Base",
+                "type": "http",
+                "url": archon_url
+            })
+            logger.debug(f"Auto-configured Archon MCP server at {archon_url}")
 
     return config
 

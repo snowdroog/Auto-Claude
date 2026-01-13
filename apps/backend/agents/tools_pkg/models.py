@@ -138,13 +138,13 @@ AGENT_CONFIGS = {
     # ═══════════════════════════════════════════════════════════════════════
     "spec_gatherer": {
         "tools": BASE_READ_TOOLS + WEB_TOOLS,
-        "mcp_servers": [],  # No MCP needed - just reads project
+        "mcp_servers": ["archon"],  # Query for similar specs
         "auto_claude_tools": [],
         "thinking_default": "medium",
     },
     "spec_researcher": {
         "tools": BASE_READ_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7"],  # Needs docs lookup
+        "mcp_servers": ["context7", "archon"],  # Docs lookup + RAG search
         "auto_claude_tools": [],
         "thinking_default": "medium",
     },
@@ -190,7 +190,7 @@ AGENT_CONFIGS = {
     # ═══════════════════════════════════════════════════════════════════════
     "planner": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude"],
+        "mcp_servers": ["context7", "graphiti", "auto-claude", "archon"],
         "mcp_servers_optional": ["linear"],  # Only if project setting enabled
         "auto_claude_tools": [
             TOOL_GET_BUILD_PROGRESS,
@@ -201,7 +201,7 @@ AGENT_CONFIGS = {
     },
     "coder": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude"],
+        "mcp_servers": ["context7", "graphiti", "auto-claude", "archon"],
         "mcp_servers_optional": ["linear"],
         "auto_claude_tools": [
             TOOL_UPDATE_SUBTASK_STATUS,
@@ -219,7 +219,7 @@ AGENT_CONFIGS = {
         # Read + Write/Edit (for QA reports and plan updates) + Bash (for tests)
         # Note: Reviewer writes to spec directory only (qa_report.md, implementation_plan.json)
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser"],
+        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser", "archon"],
         "mcp_servers_optional": ["linear"],  # For updating issue status
         "auto_claude_tools": [
             TOOL_GET_BUILD_PROGRESS,
@@ -230,7 +230,7 @@ AGENT_CONFIGS = {
     },
     "qa_fixer": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser"],
+        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser", "archon"],
         "mcp_servers_optional": ["linear"],
         "auto_claude_tools": [
             TOOL_UPDATE_SUBTASK_STATUS,
@@ -459,6 +459,11 @@ def get_required_mcp_servers(
     if "graphiti" in servers:
         if not os.environ.get("GRAPHITI_MCP_URL"):
             servers = [s for s in servers if s != "graphiti"]
+
+    # Filter archon if not enabled
+    if "archon" in servers:
+        if mcp_config.get("ARCHON_MCP_ENABLED", "").lower() != "true":
+            servers = [s for s in servers if s != "archon"]
 
     # ========== Apply per-agent MCP overrides ==========
     # Format: AGENT_MCP_<agent_type>_ADD=server1,server2
