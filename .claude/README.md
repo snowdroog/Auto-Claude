@@ -31,6 +31,11 @@ Lifecycle hooks provide automation at key points:
 - **pre_compact.py** - Preserve context during summarization
 - **notification.py** - Handle system notifications
 
+**Hook Utilities:**
+- `hooks/utils/logging.py` - Structured logging utilities
+- `hooks/utils/context.py` - Context management helpers
+- `hooks/utils/error_handling.py` - Error handling and retry patterns
+
 ## Skills
 
 Skills enable natural language workflows:
@@ -40,6 +45,7 @@ Skills enable natural language workflows:
 - **single-file-agents/** - "use sfa to analyze Y"
 - **archon/** - "search archon for Z patterns"
 - **observability/** - "analyze session costs"
+- **git-helper/** - "commit changes" | "sync with upstream" | "create branch"
 
 ## Agents
 
@@ -50,6 +56,16 @@ Sub-agents provide specialized capabilities:
 - **qa-loop-agent.md** - Quality assurance
 - **archon-sync-agent.md** - Knowledge management
 - **session-analytics-agent.md** - Observability
+
+## Patterns
+
+Reusable development patterns library:
+
+- **phase-pipeline.md** - Multi-phase spec creation pipeline
+- **qa-loop.md** - Iterative quality assurance and fix loop
+- **worktree-isolation.md** - Git worktree isolation strategy
+- **git-workflow.md** - Branch management and commit patterns
+- **error-handling.md** - Graceful error handling and recovery
 
 ## Configuration
 
