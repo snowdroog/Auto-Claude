@@ -20,7 +20,7 @@ To minimize conflicts and preserve upstream value:
 - ❌ Worktree strategy (we keep their isolated workspace pattern)
 - ❌ Graphiti integration (we keep their memory system)
 
-## Enhancement Categories
+## Enhancement Categories (7 Total)
 
 ### 1. `.claude/` Framework
 
@@ -49,12 +49,14 @@ To minimize conflicts and preserve upstream value:
 │   ├── single-file-agents/
 │   ├── archon/
 │   └── observability/
-├── agents/                 # 5 sub-agent definitions
-│   ├── spec-creator-agent.md
-│   ├── autonomous-builder-agent.md
-│   ├── qa-loop-agent.md
-│   ├── archon-sync-agent.md
-│   └── session-analytics-agent.md
+├── agents/                 # 5 sub-agent definitions (Phase 4 complete ✅)
+│   ├── spec-creator-agent.md           # 1,134 lines - Spec creation workflow
+│   ├── autonomous-builder-agent.md     # 1,178 lines - Build execution pipeline
+│   ├── qa-loop-agent.md                # 856 lines - QA validation coordination
+│   ├── archon-sync-agent.md            # 683 lines - Cross-session learning
+│   ├── session-analytics-agent.md      # 789 lines - Cost/performance/failure analysis
+│   ├── README.md                       # 656 lines - Sub-agent system docs
+│   └── TEMPLATE.md                     # 279 lines - Agent creation template
 ├── patterns/               # Reusable patterns library
 │   ├── phase-pipeline.md
 │   ├── qa-loop.md
@@ -65,9 +67,15 @@ To minimize conflicts and preserve upstream value:
 
 **Why:** Claude Code is the future of AI-assisted coding. This framework makes Auto-Claude a first-class citizen in the Claude Code ecosystem.
 
+**Phase 4 Integration:**
+- All 5 sub-agents fully integrated with `.claude/` framework
+- Skills provide natural language interface to agents
+- Hooks enable lifecycle management and insight extraction
+- Patterns library documents reusable workflows
+
 **Commits:**
-- `e24a07b` - chore(gitignore): commit .claude/ directory with local overrides
-- `98c3f25` - feat(claude-code): add Claude Code integration framework
+- `1e2d2cc` - chore(gitignore): commit .claude/ directory with local overrides
+- `42179e4` - feat(claude-code): add Claude Code integration framework
 
 ---
 
@@ -158,8 +166,8 @@ quality_gates:
 - Standardization makes it easier to create new agent prompts
 
 **Commits:**
-- `71f3451` - feat(prompts): add standardized prompt template system
-- `38903e4` - feat(prompts): modernize phase 3 prompts and inline standalone helpers
+- `30952aa` - feat(prompts): add standardized prompt template system
+- `78495dc` - feat(prompts): modernize phase 3 prompts and inline standalone helpers
 
 ---
 
@@ -171,10 +179,40 @@ quality_gates:
 **Structure:**
 ```
 single-file-agents/
-├── README.md                          # Framework documentation
+├── README.md                                      # Framework documentation (updated)
 └── agents/
-    └── sfa_spec_query_anthropic_v1.py # First SFA: Spec querying tool
+    ├── sfa_spec_query_anthropic_v1.py            # Spec querying tool
+    ├── sfa_events_analyzer_anthropic_v1.py       # Natural language DB queries ✅
+    ├── sfa_session_cost_tracker_anthropic_v1.py  # Token usage & cost tracking ✅
+    ├── sfa_loop_detector_report_anthropic_v1.py  # Infinite loop detection ✅
+    └── sfa_failure_investigator_anthropic_v1.py  # Root cause analysis ✅
 ```
+
+**Observability SFAs** (Phase 6 complete ✅):
+
+1. **sfa_events_analyzer_anthropic_v1.py** (368 lines)
+   - Query events.db using natural language
+   - Translates queries to SQL using Claude
+   - Analyzes results and provides insights
+   - Usage: `uv run sfa_events_analyzer_anthropic_v1.py --db .auto-claude/events.db --prompt "query"`
+
+2. **sfa_session_cost_tracker_anthropic_v1.py** (440 lines)
+   - Track token usage and API costs across sessions
+   - Cost breakdowns by agent, model, and spec
+   - Pricing for all Claude models (Opus, Sonnet, Haiku)
+   - Usage: `uv run sfa_session_cost_tracker_anthropic_v1.py --db .auto-claude/events.db --days 7`
+
+3. **sfa_loop_detector_report_anthropic_v1.py** (442 lines)
+   - Detect infinite loops and stuck states
+   - Identify repeated tool call sequences
+   - Flag excessive file read/edit cycles
+   - Usage: `uv run sfa_loop_detector_report_anthropic_v1.py --db .auto-claude/events.db --severity high`
+
+4. **sfa_failure_investigator_anthropic_v1.py** (509 lines)
+   - Root cause analysis for failed sessions
+   - Event timeline reconstruction
+   - Recovery recommendations
+   - Usage: `uv run sfa_failure_investigator_anthropic_v1.py --db .auto-claude/events.db --session-id abc123`
 
 **Pattern:**
 ```python
@@ -201,19 +239,87 @@ Docstring with usage examples and purpose
 - **Fast** - UV is blazing fast compared to pip/poetry
 - **Simple** - One file = one tool, no package management complexity
 
+**Completed SFAs:** 5 total
+- ✅ `sfa_spec_query_anthropic_v1.py` - Query spec.md files
+- ✅ `sfa_events_analyzer_anthropic_v1.py` - Natural language DB queries
+- ✅ `sfa_session_cost_tracker_anthropic_v1.py` - Cost tracking
+- ✅ `sfa_loop_detector_report_anthropic_v1.py` - Loop detection
+- ✅ `sfa_failure_investigator_anthropic_v1.py` - Failure analysis
+
 **Planned SFA Additions:**
+- `sfa_plan_analyzer_anthropic_v1.py` - Analyze implementation plans
+- `sfa_graphiti_query_anthropic_v1.py` - Query Graphiti memory
+- `sfa_qa_report_analyzer_anthropic_v1.py` - QA report analysis
+- `sfa_worktree_manager_anthropic_v1.py` - Worktree management
+- `sfa_archon_task_query_anthropic_v1.py` - Archon task queries
+- `sfa_archon_rag_researcher_anthropic_v1.py` - RAG knowledge search
 - `sfa_dependency_analyzer.py` - Analyze project dependencies
 - `sfa_prompt_linter.py` - Validate prompt structure
 - `sfa_spec_validator.py` - Validate spec.md against schema
-- `sfa_memory_query.py` - Query Graphiti/Archon memory
-- `sfa_cost_tracker.py` - Track OpenTelemetry costs
 
 **Commits:**
-- `228977e` - feat(sfa): add single-file-agents framework
+- `6f5084f` - feat(sfa): add single-file-agents framework
+- Additional SFA commits integrated with Phase 4 and observability work
 
 ---
 
-### 4. IndyDevDan Pattern Integration
+### 4. Sub-Agent System (Phase 4 Complete ✅)
+
+**Added**: Natural language interface for Auto-Claude workflows via sub-agents
+**Location**: `.claude/agents/` directory (7 files)
+
+**Agents Created:**
+
+1. **spec-creator-agent.md** (1,134 lines)
+   - Creates feature specifications through guided discovery
+   - Trigger: "create a spec for X"
+   - Skill: `auto-claude-spec`
+
+2. **autonomous-builder-agent.md** (1,178 lines)
+   - Executes autonomous builds with multi-phase pipeline
+   - Trigger: "build this autonomously"
+   - Skill: `auto-claude-build`
+
+3. **qa-loop-agent.md** (856 lines)
+   - Coordinates quality assurance validation and fix loops
+   - Trigger: "run QA on spec X"
+   - Invoked by auto-claude-build or manual request
+
+4. **archon-sync-agent.md** (683 lines)
+   - Synchronizes specs, tasks, and insights with Archon
+   - Trigger: "sync to archon"
+   - Skill: `archon`
+
+5. **session-analytics-agent.md** (789 lines)
+   - Analyzes session data for cost tracking, performance metrics, failure investigation
+   - Trigger: "analyze session costs"
+   - Skill: `observability`
+   - Uses all 4 observability SFAs
+
+**Supporting Files:**
+- **README.md** (656 lines) - Complete sub-agent system documentation
+- **TEMPLATE.md** (279 lines) - Template for creating new agents
+
+**Integration:**
+- All agents integrated with corresponding `.claude/skills/`
+- Trigger-based delegation via keyword detection
+- Model selection (Sonnet for complex, Haiku for fast operations)
+- Tool permissions scoped per agent
+
+**Why:** Provides natural language interface to Auto-Claude CLI tools. Users describe what they want instead of running commands directly. Context-aware, error-handling, progress reporting.
+
+**Completion:**
+- 10/10 Phase 4 tasks complete
+- All agents tested and documented
+- Skills integration complete
+- Test validation guide created
+
+**Commits:**
+- Part of Phase 4 modernization (multiple commits)
+
+---
+
+### 5. IndyDevDan Pattern Integration
 
 **Added**: Patterns and practices from IndyDevDan template
 **Location**: Distributed across `.claude/` framework
@@ -245,7 +351,7 @@ Docstring with usage examples and purpose
 
 ---
 
-### 5. Enhanced Insight Extraction
+### 6. Enhanced Insight Extraction
 
 **Modified**: `apps/backend/analysis/insight_extractor.py`
 **Modified**: `.claude/hooks/post_tool_use.py`
@@ -259,7 +365,7 @@ Docstring with usage examples and purpose
 
 ---
 
-### 6. Updated Orchestrator Integration
+### 7. Updated Orchestrator Integration
 
 **Modified**: `apps/backend/spec/pipeline/orchestrator.py`
 **Modified**: `apps/backend/spec/pipeline/agent_runner.py`
@@ -373,15 +479,17 @@ If others want our enhancements:
 
 **Current Enhancement Stats:**
 ```
-Files Added:      54
-Lines Added:      +12,173
+Files Added:      59  (+5 observability SFAs + docs)
+Lines Added:      +14,932  (includes Phase 4 agents + SFAs)
 Lines Removed:    -973
-Net Addition:     +11,200 lines
+Net Addition:     +13,959 lines
 
-Commits:          5
-Categories:       6
+Commits:          7
+Categories:       7  (added Sub-Agent System)
 Frameworks:       3 (.claude/, SFA, template)
 Prompts Modernized: 5
+Agents Created:   5  (spec-creator, builder, qa-loop, archon-sync, analytics)
+SFAs Created:     5  (spec-query, events-analyzer, cost-tracker, loop-detector, failure-investigator)
 ```
 
 **Maintenance Burden:**
@@ -397,13 +505,29 @@ See Archon project for roadmap:
 - **Project**: Auto-Claude Fork Maintenance & Enhancement
 - **Project ID**: 24e20808-303f-4c64-95e8-248d8095518c
 
+**Completed:**
+- ✅ Sub-Agent System (Phase 4) - 5 agents created
+- ✅ Observability SFAs (Phase 6) - 4 SFAs created
+- ✅ Branch strategy documentation
+- ✅ Skills integration for all agents
+
+**In Progress:**
+- Branch strategy: develop (upstream) + snowdroog-clean (enhanced)
+
 **Planned:**
-1. Expand SFA library (5+ new agents)
-2. Enhanced skill system (more user-invocable skills)
-3. Advanced patterns library (more reusable patterns)
-4. Claude Code statusline integration
-5. Output style customization
-6. UV-based plugin system
+1. Expand SFA library (9+ additional agents planned)
+   - Plan analyzer, Graphiti query, QA report analyzer
+   - Worktree manager, Archon task query, RAG researcher
+   - Dependency analyzer, prompt linter, spec validator
+2. Apply IndyDevDan patterns (hooks, skills refinement)
+3. Create ENHANCEMENTS.md philosophy documentation
+4. Automated upstream monitoring workflow
+5. Advanced patterns library (more reusable patterns)
+6. Claude Code statusline integration
+7. Output style customization
+8. UV-based plugin system
+9. Unified .env configuration for OTEL
+10. Crawl OTEL docs into Archon RAG
 
 ---
 
@@ -416,6 +540,47 @@ See Archon project for roadmap:
 
 ---
 
-**Last Updated**: 2026-01-12
-**Fork Base**: AndyMik90/Auto-Claude@5e84912
-**Enhancement Version**: v1.0.0 (first documented release)
+## Enhancement Commits (snowdroog-clean branch)
+
+All 7 enhancement commits on top of upstream base `6dc538c`:
+
+```
+4b9cb83 - docs: add fork status summary and troubleshooting
+3c7b5ba - docs: add fork maintenance and enhancement documentation
+78495dc - feat(prompts): modernize phase 3 prompts and inline standalone helpers
+6f5084f - feat(sfa): add single-file-agents framework
+30952aa - feat(prompts): add standardized prompt template system
+42179e4 - feat(claude-code): add Claude Code integration framework
+1e2d2cc - chore(gitignore): commit .claude/ directory with local overrides
+```
+
+**Base Upstream Commit:** `6dc538c` - fix: properly quote Windows .cmd/.bat paths in spawn() calls
+
+## Recent Completions (Jan 2026)
+
+**Phase 4: Sub-Agent System** ✅ Complete (10/10 tasks)
+- Created 5 sub-agents (spec-creator, autonomous-builder, qa-loop, archon-sync, session-analytics)
+- Integrated with `.claude/skills/` system
+- Comprehensive documentation (README.md, TEMPLATE.md, test validation guide)
+- Natural language interface to Auto-Claude workflows
+
+**Phase 6: Observability SFAs** ✅ Complete (4/4 SFAs)
+- `sfa_events_analyzer_anthropic_v1.py` - Natural language DB queries
+- `sfa_session_cost_tracker_anthropic_v1.py` - Cost tracking and analysis
+- `sfa_loop_detector_report_anthropic_v1.py` - Loop pattern detection
+- `sfa_failure_investigator_anthropic_v1.py` - Root cause analysis
+
+**Documentation** ✅ Complete
+- Updated single-file-agents README with all 5 SFAs
+- Updated session-analytics-agent with SFA integration
+- Updated FORK_MAINTENANCE.md with branch strategy
+- Updated FORK_STATUS.md with current state
+
+---
+
+**Last Updated**: 2026-01-13
+**Active Branch**: `snowdroog-clean` (myfork/snowdroog-clean)
+**Fork Base**: AndyMik90/Auto-Claude@6dc538c (v2.7.3 + bug fixes)
+**Enhancement Commits**: 7 commits
+**Enhancement Version**: v1.1.0 (Phase 4 + Observability complete)
+**GitHub**: https://github.com/snowdroog/Auto-Claude/tree/snowdroog-clean

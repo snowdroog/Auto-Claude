@@ -2,6 +2,17 @@
 
 Execute autonomous builds using Auto-Claude's multi-agent implementation pipeline.
 
+## Sub-Agent Integration
+
+This skill invokes the **autonomous-builder-agent** (`.claude/agents/autonomous-builder-agent.md`) which orchestrates the entire build lifecycle: Planning → Coding → QA → Fix Loop.
+
+**How it works:**
+- User requests build → Claude detects intent
+- Claude delegates to autonomous-builder-agent
+- Agent executes `run.py` with spec ID
+- Agent manages multi-session pipeline with progress reporting
+- Agent coordinates worktree isolation and git operations
+
 ## Quick Start
 
 **Trigger phrases:**
@@ -67,6 +78,14 @@ Builds run in isolated git worktrees:
 
 ## Related
 
-- **auto-claude-spec** - Create specifications first
-- **archon** - Query patterns before building
-- **observability** - Track build costs and metrics
+- **auto-claude-spec** - Create specifications first (via spec-creator-agent)
+- **archon** - Query patterns before building (via archon-sync-agent)
+- **observability** - Track build costs and metrics (via session-analytics-agent)
+
+## Technical Details
+
+**Agent Used:** `.claude/agents/autonomous-builder-agent.md`
+**CLI Wrapper:** `apps/backend/run.py`
+**Model:** Sonnet (balanced implementation)
+**Triggers:** "build this autonomously", "implement spec", "run auto-claude"
+**Sub-Agents:** Can spawn planner, coder, qa_reviewer, qa_fixer agents

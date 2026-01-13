@@ -2,6 +2,19 @@
 
 Run specialized single-file agents (SFAs) for analysis and utility tasks.
 
+## Sub-Agent Integration
+
+This skill provides direct access to SFA execution. SFAs are used by other sub-agents, particularly:
+- **session-analytics-agent** - Uses SFAs for cost tracking, pattern detection, failure investigation
+- **autonomous-builder-agent** - Can use SFAs for pre-implementation research
+- **qa-loop-agent** - Can use SFAs for validation analysis
+
+**How it works:**
+- User requests SFA execution → Claude detects specific SFA needed
+- Claude executes SFA via UV (self-contained, no venv needed)
+- SFA returns analysis results directly to user
+- Results can be stored in Archon for future reference
+
 ## Quick Start
 
 **Trigger phrases:**
@@ -70,4 +83,12 @@ See SFA Development Guide in Archon (Document ID: 5dd92e00-7741-42c3-81b9-d21ec5
 
 - **auto-claude-spec** - Create specs (SFAs can then query them)
 - **auto-claude-build** - Build specs (SFAs can analyze results)
-- **observability** - Session analytics (uses SFAs internally)
+- **observability** - Session analytics (uses SFAs internally via session-analytics-agent)
+
+## Technical Details
+
+**Agent Integration:** Used by session-analytics-agent, autonomous-builder-agent, qa-loop-agent
+**CLI Pattern:** Direct UV execution (`uv run path/to/sfa.py`)
+**Model:** Haiku (fast, efficient analysis)
+**Location:** `apps/backend/single-file-agents/agents/`
+**Pattern:** UV + PEP 723 (self-contained dependencies)

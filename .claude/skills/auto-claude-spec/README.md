@@ -2,6 +2,16 @@
 
 Create feature specifications through Auto-Claude's guided discovery process.
 
+## Sub-Agent Integration
+
+This skill invokes the **spec-creator-agent** (`.claude/agents/spec-creator-agent.md`) which provides a natural language interface to Auto-Claude's spec creation pipeline.
+
+**How it works:**
+- User mentions trigger phrases → Claude detects intent
+- Claude delegates to spec-creator-agent
+- Agent executes `spec_runner.py` with appropriate flags
+- Agent guides user through multi-phase discovery (simple/standard/complex)
+
 ## Quick Start
 
 **Trigger phrases:**
@@ -92,6 +102,13 @@ After creating a spec:
 
 ## Related
 
-- **auto-claude-build** - Implement the spec autonomously
-- **archon** - Query similar implementations
-- **observability** - Track spec creation costs
+- **auto-claude-build** - Implement the spec autonomously (via autonomous-builder-agent)
+- **archon** - Query similar implementations (via archon-sync-agent)
+- **observability** - Track spec creation costs (via session-analytics-agent)
+
+## Technical Details
+
+**Agent Used:** `.claude/agents/spec-creator-agent.md`
+**CLI Wrapper:** `apps/backend/spec_runner.py`
+**Model:** Sonnet (balanced requirements gathering)
+**Triggers:** "create a spec", "new specification", "define a feature"

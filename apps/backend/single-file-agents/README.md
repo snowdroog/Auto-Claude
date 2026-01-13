@@ -12,9 +12,20 @@ Single-File Agents (SFAs) are specialized Python scripts that follow the UV + PE
 
 ## Available Agents
 
+### Spec & Analysis
+
 | Agent | Purpose | Usage |
 |-------|---------|-------|
 | `sfa_spec_query_anthropic_v1.py` | Query spec.md files | `--spec-dir PATH --query "text"` |
+
+### Observability & Analytics
+
+| Agent | Purpose | Usage |
+|-------|---------|-------|
+| `sfa_events_analyzer_anthropic_v1.py` | Natural language DB queries | `--db PATH --prompt "query"` |
+| `sfa_session_cost_tracker_anthropic_v1.py` | Token usage and cost tracking | `--db PATH --days 7` |
+| `sfa_loop_detector_report_anthropic_v1.py` | Detect infinite loops | `--db PATH --days 7` |
+| `sfa_failure_investigator_anthropic_v1.py` | Root cause analysis | `--db PATH --session-id ID` |
 
 ## Usage
 
@@ -25,6 +36,27 @@ Single-File Agents (SFAs) are specialized Python scripts that follow the UV + PE
 uv run apps/backend/single-file-agents/agents/sfa_spec_query_anthropic_v1.py \
   --spec-dir .auto-claude/specs/001-auth \
   --query "What are the acceptance criteria?"
+
+# Analyze events database with natural language
+uv run apps/backend/single-file-agents/agents/sfa_events_analyzer_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --prompt "Show me all failed sessions from the last 7 days"
+
+# Track session costs
+uv run apps/backend/single-file-agents/agents/sfa_session_cost_tracker_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7
+
+# Detect loop patterns
+uv run apps/backend/single-file-agents/agents/sfa_loop_detector_report_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7 \
+  --severity high
+
+# Investigate failed session
+uv run apps/backend/single-file-agents/agents/sfa_failure_investigator_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --session-id abc123
 ```
 
 ### Via Claude Code Skill
@@ -32,6 +64,139 @@ uv run apps/backend/single-file-agents/agents/sfa_spec_query_anthropic_v1.py \
 Say: "use sfa to query spec 001 for acceptance criteria"
 
 Claude Code will execute the appropriate SFA automatically.
+
+## Agent Details
+
+### sfa_events_analyzer_anthropic_v1.py
+
+**Natural Language Database Queries**
+
+Translate natural language queries into SQL and analyze results from the events database.
+
+```bash
+# Find recent failed sessions
+uv run sfa_events_analyzer_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --prompt "Which sessions failed during QA in the last week?"
+
+# Compare performance
+uv run sfa_events_analyzer_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --prompt "Compare planner vs coder session durations"
+
+# JSON output
+uv run sfa_events_analyzer_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --prompt "Show session costs" \
+  --json
+```
+
+**Features:**
+- Natural language to SQL translation
+- AI-powered result analysis
+- Schema-aware query generation
+- Support for complex aggregations
+
+### sfa_session_cost_tracker_anthropic_v1.py
+
+**Token Usage and Cost Analysis**
+
+Track API costs, token usage, and efficiency metrics across sessions.
+
+```bash
+# Last 7 days costs
+uv run sfa_session_cost_tracker_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7
+
+# Specific spec costs
+uv run sfa_session_cost_tracker_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --spec-id 001
+
+# Cost breakdown by agent/model
+uv run sfa_session_cost_tracker_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 30 \
+  --no-insights
+```
+
+**Features:**
+- Cost calculation for all Claude models (Opus, Sonnet, Haiku)
+- Breakdown by agent type, model, and spec
+- Token usage statistics (input, output, thinking)
+- Cost optimization insights
+
+**Pricing (as of 2026-01):**
+- Opus 4: $15/M input, $75/M output
+- Sonnet 4/4.5: $3/M input, $15/M output
+- Haiku 4: $0.80/M input, $4/M output
+
+### sfa_loop_detector_report_anthropic_v1.py
+
+**Infinite Loop and Stuck State Detection**
+
+Analyze tool call patterns to identify loops and inefficient behavior.
+
+```bash
+# Detect loops in recent sessions
+uv run sfa_loop_detector_report_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7
+
+# High severity only
+uv run sfa_loop_detector_report_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7 \
+  --severity high
+
+# Analyze specific session
+uv run sfa_loop_detector_report_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --session-id abc123
+```
+
+**Detection Patterns:**
+- **Repeated Sequences**: Same 3-tool sequence occurring 3+ times
+- **File Operation Loops**: Excessive Read/Edit cycles on same file (5+ operations)
+- **Long-Running Sessions**: >50 tool calls or >30 minutes duration
+
+**Severity Levels:**
+- **High**: 5+ repetitions, 8+ file ops, or >60 minutes
+- **Medium**: 3-4 repetitions, 4-7 file ops, or 30-60 minutes
+- **Low**: Minor inefficiencies
+
+### sfa_failure_investigator_anthropic_v1.py
+
+**Root Cause Analysis for Failed Sessions**
+
+Investigate failed sessions with timeline analysis and recovery recommendations.
+
+```bash
+# Investigate specific failure
+uv run sfa_failure_investigator_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --session-id abc123
+
+# Find recent failures
+uv run sfa_failure_investigator_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7
+
+# Failures by agent type
+uv run sfa_failure_investigator_anthropic_v1.py \
+  --db .auto-claude/events.db \
+  --days 7 \
+  --agent-type coder
+```
+
+**Analysis Includes:**
+- Event timeline leading to failure
+- Tool call patterns before failure
+- Root cause hypothesis
+- Similar failure detection
+- Recovery steps
+- Impact assessment (time, cost, scope)
 
 ## Requirements
 
@@ -102,7 +267,7 @@ Use SFAs when:
 **Phase 2 (Weeks 3-4)**: Initial 6 SFAs
 - [x] sfa_spec_query_anthropic_v1.py
 - [ ] sfa_plan_analyzer_anthropic_v1.py
-- [ ] sfa_session_cost_tracker_anthropic_v1.py
+- [x] sfa_session_cost_tracker_anthropic_v1.py
 - [ ] sfa_graphiti_query_anthropic_v1.py
 - [ ] sfa_qa_report_analyzer_anthropic_v1.py
 - [ ] sfa_worktree_manager_anthropic_v1.py
@@ -112,10 +277,11 @@ Use SFAs when:
 - [ ] sfa_archon_rag_researcher_anthropic_v1.py
 - [ ] sfa_archon_project_reporter_anthropic_v1.py
 
-**Phase 6 (Weeks 11-12)**: Observability SFAs
-- [ ] sfa_events_analyzer_anthropic_v1.py
-- [ ] sfa_loop_detector_report_anthropic_v1.py
-- [ ] sfa_failure_investigator_anthropic_v1.py
+**Phase 6 (Weeks 11-12)**: Observability SFAs ✅ **COMPLETED**
+- [x] sfa_events_analyzer_anthropic_v1.py
+- [x] sfa_session_cost_tracker_anthropic_v1.py
+- [x] sfa_loop_detector_report_anthropic_v1.py
+- [x] sfa_failure_investigator_anthropic_v1.py
 
 ## Resources
 

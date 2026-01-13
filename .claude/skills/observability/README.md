@@ -2,6 +2,17 @@
 
 Session analytics, cost tracking, and pattern detection for Auto-Claude.
 
+## Sub-Agent Integration
+
+This skill invokes the **session-analytics-agent** (`.claude/agents/session-analytics-agent.md`) which analyzes Auto-Claude session data using SFAs for cost tracking, performance metrics, pattern detection, and failure investigation.
+
+**How it works:**
+- User requests analytics → Claude delegates to session-analytics-agent
+- Agent selects appropriate SFA (cost tracker, loop detector, failure investigator, events analyzer)
+- Agent executes SFA via UV with relevant parameters
+- Agent provides insights, comparisons, and recommendations
+- Agent can store findings in Archon for long-term tracking
+
 ## Quick Start
 
 **Trigger phrases:**
@@ -88,6 +99,17 @@ uv run apps/backend/single-file-agents/agents/sfa_failure_investigator_anthropic
 
 ## Related
 
-- **auto-claude-build** - Generates observability data
-- **archon** - Store insights for cross-spec learning
+- **auto-claude-build** - Generates observability data (via autonomous-builder-agent)
+- **archon** - Store insights for cross-spec learning (via archon-sync-agent)
 - **single-file-agents** - SFAs power observability analysis
+
+## Technical Details
+
+**Agent Used:** `.claude/agents/session-analytics-agent.md`
+**SFAs Used:**
+  - `sfa_session_cost_tracker_anthropic_v1.py` - Cost analysis
+  - `sfa_loop_detector_report_anthropic_v1.py` - Pattern detection
+  - `sfa_failure_investigator_anthropic_v1.py` - Root cause analysis
+  - `sfa_events_analyzer_anthropic_v1.py` - Natural language queries
+**Model:** Haiku (fast analysis coordination)
+**Triggers:** "analyze sessions", "session costs", "detect patterns", "investigate failure"

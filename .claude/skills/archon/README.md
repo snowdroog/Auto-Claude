@@ -2,6 +2,16 @@
 
 Query Archon knowledge base, manage tasks, and sync project data.
 
+## Sub-Agent Integration
+
+This skill can invoke the **archon-sync-agent** (`.claude/agents/archon-sync-agent.md`) for bi-directional synchronization between Auto-Claude specs and Archon.
+
+**How it works:**
+- **Direct Queries:** User queries knowledge base → Claude uses Archon MCP tools directly
+- **Sync Operations:** User requests "sync to archon" → Claude delegates to archon-sync-agent
+- **Automatic Sync:** Spec creation and builds automatically trigger archon-sync-agent
+- **Cross-Session Learning:** Archon RAG enables pattern discovery across specs
+
 ## Quick Start
 
 **Trigger phrases:**
@@ -108,6 +118,14 @@ User: "I'm about to implement OAuth authentication"
 
 ## Related
 
-- **auto-claude-spec** - Specs sync to Archon projects
-- **auto-claude-build** - Tasks sync during builds
+- **auto-claude-spec** - Specs sync to Archon projects (via archon-sync-agent)
+- **auto-claude-build** - Tasks sync during builds (via archon-sync-agent)
 - **observability** - Session insights stored in Archon RAG
+
+## Technical Details
+
+**Agent Used:** `.claude/agents/archon-sync-agent.md` (for sync operations)
+**MCP Tools:** `mcp__archon__*` (for direct queries)
+**Model:** Haiku (efficient API operations)
+**Triggers:** "sync to archon", "update archon", "query knowledge base"
+**Data Mapping:** Specs→Projects, Subtasks→Tasks, Insights→RAG
