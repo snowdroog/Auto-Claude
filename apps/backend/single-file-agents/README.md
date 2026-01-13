@@ -12,11 +12,27 @@ Single-File Agents (SFAs) are specialized Python scripts that follow the UV + PE
 
 ## Available Agents
 
-### Spec & Analysis
+### Spec & Planning
 
 | Agent | Purpose | Usage |
 |-------|---------|-------|
 | `sfa_spec_query_anthropic_v1.py` | Query spec.md files | `--spec-dir PATH --query "text"` |
+| `sfa_spec_validator_anthropic_v1.py` | Validate spec completeness | `--spec-dir PATH` |
+| `sfa_plan_analyzer_anthropic_v1.py` | Analyze implementation plans | `--plan-file PATH` |
+| `sfa_qa_report_analyzer_anthropic_v1.py` | Analyze QA reports | `--report-file PATH` |
+
+### Project & Code Analysis
+
+| Agent | Purpose | Usage |
+|-------|---------|-------|
+| `sfa_dependency_analyzer_anthropic_v1.py` | Analyze Python dependencies | `--project-dir PATH` |
+| `sfa_prompt_linter_anthropic_v1.py` | Lint agent prompts | `--prompt-file PATH` |
+
+### Memory & Knowledge
+
+| Agent | Purpose | Usage |
+|-------|---------|-------|
+| `sfa_graphiti_query_anthropic_v1.py` | Query Graphiti memory | `--spec-dir PATH --query "text"` |
 
 ### Observability & Analytics
 
@@ -36,6 +52,31 @@ Single-File Agents (SFAs) are specialized Python scripts that follow the UV + PE
 uv run apps/backend/single-file-agents/agents/sfa_spec_query_anthropic_v1.py \
   --spec-dir .auto-claude/specs/001-auth \
   --query "What are the acceptance criteria?"
+
+# Validate spec completeness
+uv run apps/backend/single-file-agents/agents/sfa_spec_validator_anthropic_v1.py \
+  --spec-dir .auto-claude/specs/001-auth
+
+# Analyze implementation plan
+uv run apps/backend/single-file-agents/agents/sfa_plan_analyzer_anthropic_v1.py \
+  --plan-file .auto-claude/specs/001-auth/implementation_plan.json
+
+# Analyze QA report
+uv run apps/backend/single-file-agents/agents/sfa_qa_report_analyzer_anthropic_v1.py \
+  --report-file .auto-claude/specs/001-auth/qa_report.md
+
+# Analyze project dependencies
+uv run apps/backend/single-file-agents/agents/sfa_dependency_analyzer_anthropic_v1.py \
+  --project-dir apps/backend
+
+# Lint agent prompts
+uv run apps/backend/single-file-agents/agents/sfa_prompt_linter_anthropic_v1.py \
+  --prompt-file apps/backend/prompts/coder.md
+
+# Query Graphiti memory
+uv run apps/backend/single-file-agents/agents/sfa_graphiti_query_anthropic_v1.py \
+  --spec-dir .auto-claude/specs/001-auth \
+  --query "What patterns were discovered?"
 
 # Analyze events database with natural language
 uv run apps/backend/single-file-agents/agents/sfa_events_analyzer_anthropic_v1.py \
@@ -264,13 +305,18 @@ Use SFAs when:
 
 ## Roadmap
 
-**Phase 2 (Weeks 3-4)**: Initial 6 SFAs
+**Phase 2 (Weeks 3-4)**: Initial 6 SFAs ✅ **COMPLETED**
 - [x] sfa_spec_query_anthropic_v1.py
-- [ ] sfa_plan_analyzer_anthropic_v1.py
+- [x] sfa_plan_analyzer_anthropic_v1.py
 - [x] sfa_session_cost_tracker_anthropic_v1.py
-- [ ] sfa_graphiti_query_anthropic_v1.py
-- [ ] sfa_qa_report_analyzer_anthropic_v1.py
-- [ ] sfa_worktree_manager_anthropic_v1.py
+- [x] sfa_graphiti_query_anthropic_v1.py
+- [x] sfa_qa_report_analyzer_anthropic_v1.py
+- [ ] sfa_worktree_manager_anthropic_v1.py (deferred)
+
+**Phase 4 (Extended)**: Development Tools SFAs ✅ **COMPLETED**
+- [x] sfa_dependency_analyzer_anthropic_v1.py
+- [x] sfa_prompt_linter_anthropic_v1.py
+- [x] sfa_spec_validator_anthropic_v1.py
 
 **Phase 5 (Weeks 9-10)**: Archon Integration SFAs
 - [ ] sfa_archon_task_query_anthropic_v1.py
