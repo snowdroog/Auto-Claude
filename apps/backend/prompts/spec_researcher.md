@@ -101,7 +101,80 @@ Search for:
 - `"[library] getting started"`
 - `"[library] pypi"` or `"[library] npm"` (to verify package names)
 
-### 1.3: Key Questions to Answer
+### 1.3: Use Archon (for integration patterns and gotchas)
+
+**If Archon MCP tools are available**, query for past integration experiences AFTER researching with Context7.
+
+#### Check Tool Availability
+
+Look for:
+- `mcp__archon__rag_search_knowledge_base`
+- `mcp__archon__rag_search_code_examples`
+
+If these tools are NOT available, skip this section.
+
+#### Query for Integration Patterns
+
+```python
+# Search for integration patterns and gotchas
+# Use SHORT queries (library name + "integration" or "patterns")
+mcp__archon__rag_search_knowledge_base(
+    query="Stripe integration patterns",  # ✅ Good: concise
+    match_count=5
+)
+
+# Search for specific integration types
+mcp__archon__rag_search_code_examples(
+    query="PostgreSQL connection pooling",
+    match_count=3
+)
+
+# Search for known issues
+mcp__archon__rag_search_knowledge_base(
+    query="Redis cache gotchas",
+    match_count=5
+)
+```
+
+#### What to Extract from Archon
+
+Use Archon results to supplement Context7 research:
+- **Integration gotchas** - Issues that came up in past integrations
+- **Best practices** - Proven patterns from successful implementations
+- **Configuration patterns** - How integrations were configured
+- **Edge cases** - Unexpected behaviors discovered during implementation
+
+**Example: Researching Stripe integration**
+1. Context7: Get official Stripe API docs and setup patterns
+2. WebSearch: Verify latest Stripe SDK version
+3. Archon: `rag_search_knowledge_base(query="Stripe integration")`
+   - Find: "Need webhook signature verification for security"
+   - Find: "Test mode vs production mode configuration"
+   - Find: "Error handling patterns for payment failures"
+4. Combine all three sources in your research.json
+
+#### Query Tips
+
+- ❌ BAD: "how to integrate Stripe payment processing with error handling"
+- ✅ GOOD: "Stripe integration patterns"
+- ❌ BAD: General questions
+- ✅ GOOD: Library name + "integration" or "gotchas"
+
+#### When to Use Archon
+
+✅ **Use Archon when:**
+- Researching common integrations (payment, auth, databases)
+- Want to learn from past integration experiences
+- Need to discover non-obvious gotchas
+- Integrating well-known libraries/services
+
+❌ **Skip Archon when:**
+- Tools aren't available
+- Researching brand new libraries (no past data)
+- Time-sensitive research
+- Context7 already provides comprehensive docs
+
+### 1.4: Key Questions to Answer
 
 For each integration, find answers to:
 

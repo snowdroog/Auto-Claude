@@ -557,10 +557,97 @@ If subtask says "Add Stripe payment integration":
 - Missing required configuration
 - Security anti-patterns
 
+#### 6.5: Query Archon for Code Examples (If Available)
+
+**OPTIONAL but highly recommended**: Before implementing, query Archon for proven code examples and patterns.
+
+##### When to Use Archon
+
+Use Archon when you have these tools available:
+- `mcp__archon__rag_search_code_examples`
+- `mcp__archon__rag_search_knowledge_base`
+
+**Good candidates for Archon queries:**
+- ✅ Implementing unfamiliar technologies (e.g., "WebSocket server", "OAuth flow")
+- ✅ Complex integrations (e.g., "database migration", "Redis caching")
+- ✅ Security-sensitive code (e.g., "password hashing", "JWT validation")
+- ✅ Performance-critical operations (e.g., "async batch processing")
+
+##### How to Use Archon
+
+**Step 1: Search for code examples**
+```python
+# Use SHORT, FOCUSED queries (2-5 keywords)
+mcp__archon__rag_search_code_examples(
+    query="FastAPI middleware",  # ✅ Good: concise
+    match_count=3
+)
+
+# Extract specific patterns, not full implementations
+mcp__archon__rag_search_code_examples(
+    query="React hooks useState",  # ✅ Good: specific technology
+    match_count=3
+)
+```
+
+**Step 2: Search for known gotchas**
+```python
+# Learn from past mistakes
+mcp__archon__rag_search_knowledge_base(
+    query="database migration pitfalls PostgreSQL",  # ✅ Focused search
+    match_count=5
+)
+
+# Find best practices
+mcp__archon__rag_search_knowledge_base(
+    query="API rate limiting patterns",
+    match_count=5
+)
+```
+
+**Query Tips:**
+- ❌ BAD: "how to implement user authentication with JWT tokens in FastAPI application"
+- ✅ GOOD: "FastAPI JWT authentication"
+- ❌ BAD: Long descriptions or questions
+- ✅ GOOD: Technology names + feature (2-5 keywords)
+
+**What Archon Provides:**
+- Summaries and patterns from past successful implementations
+- Known gotchas and best practices
+- Reference architecture examples
+- Links to full page content for detailed reading
+
+**What Archon Does NOT Provide:**
+- Complete copy-paste code (you still need to adapt to THIS codebase)
+- THIS project's specific patterns (use grep for that)
+- Real-time documentation (use Context7 for latest library docs)
+
+**When NOT to use Archon:**
+- ❌ Archon tools aren't in your available tools
+- ❌ Looking for THIS project's existing patterns (use Read/Grep)
+- ❌ Need latest library API docs (use Context7)
+- ❌ Simple, well-understood implementations
+
+**Example Workflow:**
+
+If subtask says "Add Redis caching to API endpoints":
+1. Query Archon: `rag_search_code_examples(query="Redis cache FastAPI")`
+2. Review patterns from Archon results
+3. Query Context7 for latest Redis-py docs (if needed)
+4. Read THIS project's existing cache patterns (grep/read)
+5. Implement combining all three sources
+
+**This prevents:**
+- Reinventing patterns that already work
+- Missing important edge cases
+- Security vulnerabilities from naive implementations
+- Performance anti-patterns
+
 **Validation**:
 - [ ] All files_to_modify read
 - [ ] All patterns_from files read
 - [ ] External library docs looked up (if applicable)
+- [ ] Archon queried for code examples (if available and relevant)
 - [ ] Current implementation understood
 
 ---

@@ -230,6 +230,84 @@ Wait for confirmation or correction.
 
 ---
 
+## PHASE 3.5: QUERY ARCHON FOR SIMILAR SPECS (OPTIONAL)
+
+<phase id="3.5" name="Query Archon (Optional)">
+
+**If Archon MCP tools are available**, query for similar past specs before gathering requirements.
+
+<archon_query>
+
+### Check Tool Availability
+
+Look for these tools in your available tools:
+- `mcp__archon__rag_search_knowledge_base`
+
+If these tools are NOT available, skip this phase and proceed to Phase 4.
+
+### Query for Similar Specs
+
+If Archon is available:
+
+```python
+# Search for similar feature specs
+# Use SHORT, FOCUSED queries (2-5 keywords)
+mcp__archon__rag_search_knowledge_base(
+    query="authentication feature requirements",  # ✅ Good: concise
+    match_count=3
+)
+
+# Search for specific workflow types
+mcp__archon__rag_search_knowledge_base(
+    query="API integration acceptance criteria",
+    match_count=3
+)
+```
+
+### What to Learn from Archon Results
+
+Use Archon results to:
+- **Ask better questions** - See what questions were important in similar specs
+- **Identify common requirements** - Patterns that appear in similar features
+- **Discover edge cases** - Issues that came up in past implementations
+- **Reference acceptance criteria** - How similar features were validated
+
+**Example: If user wants "user authentication"**
+1. Query: `rag_search_knowledge_base(query="authentication requirements")`
+2. Review results for common patterns:
+   - Password requirements (length, complexity)
+   - Session management approach
+   - Multi-factor authentication considerations
+   - Password reset flows
+3. Ask informed questions based on what you learned
+
+### Query Tips
+
+- ❌ BAD: "complete requirements for implementing user authentication with JWT"
+- ✅ GOOD: "authentication requirements"
+- ❌ BAD: Long natural language questions
+- ✅ GOOD: Feature name + "requirements" or "acceptance criteria"
+
+### When to Use Archon
+
+✅ **Use Archon when:**
+- Implementing common features (auth, payments, notifications)
+- Want to learn from past similar specs
+- Need examples of good acceptance criteria
+- Building something you've built before (in past projects)
+
+❌ **Skip Archon when:**
+- Tools aren't available
+- Building truly novel features with no precedent
+- Very simple, straightforward requirements
+- Time-sensitive requirements gathering
+
+</archon_query>
+
+</phase>
+
+---
+
 ## PHASE 4: GATHER REQUIREMENTS
 
 <phase id="4" name="Gather Requirements">

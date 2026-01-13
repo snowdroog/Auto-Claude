@@ -35,9 +35,51 @@ Identify:
 - Configuration files (settings.py, config.py, .env.example)
 - Directory organization patterns
 
-### 0.2: Analyze Existing Patterns for the Feature
+### 0.2: Query Archon Knowledge Base (If Available)
 
-**This is the most important step.** For whatever feature you're building, find SIMILAR existing features:
+**BEFORE grepping the codebase**, check if Archon MCP tools are available and query for similar patterns:
+
+**Step 1: Check if Archon is available**
+
+Look for these tools in your available tools:
+- `mcp__archon__rag_search_knowledge_base`
+- `mcp__archon__rag_search_code_examples`
+
+**Step 2: Query Archon for similar implementations** (if available)
+
+```python
+# Search for similar features from past builds
+# Keep queries SHORT and FOCUSED (2-5 keywords max)
+mcp__archon__rag_search_knowledge_base(
+    query="authentication patterns",  # ✅ Good: concise, focused
+    match_count=5
+)
+
+# Search for code examples
+mcp__archon__rag_search_code_examples(
+    query="FastAPI middleware",  # ✅ Good: specific technology
+    match_count=3
+)
+
+# AVOID long queries - they perform worse:
+# ❌ Bad: "how to implement user authentication with JWT tokens in FastAPI"
+# ✅ Good: "FastAPI JWT authentication"
+```
+
+**When to query Archon:**
+- ✅ Looking for similar features implemented in past builds
+- ✅ Need proven patterns for specific technologies
+- ✅ Want to learn from past gotchas and best practices
+- ✅ Searching for integration patterns (e.g., "Redis cache", "PostgreSQL migration")
+
+**When NOT to query Archon:**
+- ❌ Archon tools aren't available (check your available tools first)
+- ❌ Looking for THIS project's specific patterns (use grep instead)
+- ❌ Need to see actual implementation details (Archon gives summaries, not full code)
+
+**Fallback: If Archon unavailable, use grep**
+
+If Archon tools aren't in your available tools, proceed with grep-based investigation:
 
 ```bash
 # Example: If building "caching", search for existing cache implementations
@@ -51,7 +93,7 @@ grep -r "@app.route\|@router\|def get_\|def post_" --include="*.py" . | head -30
 grep -r "celery\|@task\|async def" --include="*.py" . | head -30
 ```
 
-**YOU MUST READ AT LEAST 3 PATTERN FILES** before planning:
+**YOU MUST investigate patterns before planning** (Archon OR grep):
 - Files with similar functionality to what you're building
 - Files in the same service you'll be modifying
 - Configuration files for the technology you'll use

@@ -93,7 +93,44 @@ git diff {{BASE_BRANCH}}...HEAD --name-status
 
 # 6. Read QA acceptance criteria from spec
 grep -A 100 "## QA Acceptance Criteria" spec.md
+
+# 7. (OPTIONAL) Query Archon for acceptance criteria patterns
+# If mcp__archon__rag_search_knowledge_base is available:
+# Query for similar QA patterns to inform your validation approach
+# Example: mcp__archon__rag_search_knowledge_base(query="authentication QA validation", match_count=3)
 ```
+
+**Archon Query (Optional but Recommended)**
+
+If Archon MCP tools are available, query for acceptance criteria patterns BEFORE starting QA:
+
+```python
+# Search for QA validation patterns for similar features
+# Use SHORT queries (feature type + "QA" or "validation")
+mcp__archon__rag_search_knowledge_base(
+    query="authentication QA validation",  # ✅ Good: concise
+    match_count=3
+)
+
+# Search for specific test scenarios
+mcp__archon__rag_search_knowledge_base(
+    query="payment integration testing",
+    match_count=3
+)
+```
+
+**What to Learn from Archon:**
+- **Test scenarios** you might have missed
+- **Edge cases** discovered in past QA cycles
+- **Common failure modes** for similar features
+- **Acceptance criteria patterns** that worked well
+
+**When to Query Archon:**
+- ✅ QA testing common features (auth, payments, APIs)
+- ✅ Want comprehensive test coverage
+- ✅ Unsure what edge cases to test
+- ❌ Archon tools not available
+- ❌ Very simple features with obvious tests
 
 </phase>
 
