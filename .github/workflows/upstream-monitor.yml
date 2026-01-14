@@ -96,8 +96,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check if there's already an open upstream sync issue
-          EXISTING=$(gh issue list --label "upstream-sync" --state open --json number --jq '.[0].number // empty')
+          # Check if there's already an open upstream sync issue (by title pattern)
+          EXISTING=$(gh issue list --state open --json number,title --jq '.[] | select(.title | startswith("🔄 Upstream Sync:")) | .number' | head -1)
           if [ -n "$EXISTING" ]; then
             echo "existing_issue=$EXISTING" >> $GITHUB_OUTPUT
             echo "Found existing issue #$EXISTING"
@@ -115,25 +115,20 @@ jobs:
           gh issue comment ${{ steps.existing.outputs.existing_issue }} --body-file /tmp/commit_summary.md
           echo "Updated issue #${{ steps.existing.outputs.existing_issue }}"
 
-      - name: Ensure label exists
-        if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue == ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Create label if it doesn't exist
-          gh label create "upstream-sync" --description "Notifications about new upstream commits" --color "0366d6" 2>/dev/null || true
-
       - name: Create new issue
         if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create new upstream sync issue
-          gh issue create \
+          # Create new upstream sync issue (without label due to token restrictions)
+          ISSUE_URL=$(gh issue create \
             --title "🔄 Upstream Sync: ${{ steps.check.outputs.behind_count }} new commit(s) available" \
-            --body-file /tmp/commit_summary.md \
-            --label "upstream-sync"
-          echo "Created new upstream sync issue"
+            --body-file /tmp/commit_summary.md)
+          echo "Created new upstream sync issue: $ISSUE_URL"
+
+          # Try to add label (may fail due to token permissions)
+          ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+          gh issue edit "$ISSUE_NUM" --add-label "upstream-sync" 2>/dev/null || echo "Note: Could not add label (token restriction)"
 
       - name: Summary
         run: |
