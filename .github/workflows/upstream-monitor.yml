@@ -115,6 +115,14 @@ jobs:
           gh issue comment ${{ steps.existing.outputs.existing_issue }} --body-file /tmp/commit_summary.md
           echo "Updated issue #${{ steps.existing.outputs.existing_issue }}"
 
+      - name: Ensure label exists
+        if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create label if it doesn't exist
+          gh label create "upstream-sync" --description "Notifications about new upstream commits" --color "0366d6" 2>/dev/null || true
+
       - name: Create new issue
         if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue == ''
         env:
