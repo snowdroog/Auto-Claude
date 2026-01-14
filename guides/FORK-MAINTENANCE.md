@@ -42,10 +42,10 @@ When you receive an upstream sync notification:
 
 ```bash
 # Fetch latest from origin (which points to upstream)
-git fetch origin develop
+git fetch origin main
 
 # View available commits
-git log --oneline origin/develop ^HEAD
+git log --oneline origin/main ^HEAD
 
 # Cherry-pick specific commits you want
 git cherry-pick <commit-hash>
@@ -58,11 +58,11 @@ git push myfork snowdroog-clean
 
 ```bash
 # Fetch latest
-git fetch origin develop
+git fetch origin main
 
 # Merge upstream changes into your branch
 git checkout snowdroog-clean
-git merge origin/develop
+git merge origin/main
 
 # Push to fork
 git push myfork snowdroog-clean

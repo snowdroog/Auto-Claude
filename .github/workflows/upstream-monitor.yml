@@ -16,7 +16,7 @@ permissions:
 
 env:
   UPSTREAM_REPO: AndyMik90/Auto-Claude
-  UPSTREAM_BRANCH: develop
+  UPSTREAM_BRANCH: main
   FORK_BRANCH: snowdroog-clean
 
 jobs:
@@ -73,14 +73,14 @@ jobs:
             echo "### Sync Instructions" >> /tmp/commit_summary.md
             echo "\`\`\`bash" >> /tmp/commit_summary.md
             echo "# Fetch latest upstream (origin points to AndyMik90/Auto-Claude)" >> /tmp/commit_summary.md
-            echo "git fetch origin develop" >> /tmp/commit_summary.md
+            echo "git fetch origin ${{ env.UPSTREAM_BRANCH }}" >> /tmp/commit_summary.md
             echo "" >> /tmp/commit_summary.md
             echo "# Cherry-pick specific commits you want" >> /tmp/commit_summary.md
             echo "git cherry-pick <commit-hash>" >> /tmp/commit_summary.md
             echo "" >> /tmp/commit_summary.md
-            echo "# Or merge upstream develop into your branch" >> /tmp/commit_summary.md
+            echo "# Or merge upstream into your branch" >> /tmp/commit_summary.md
             echo "git checkout ${{ env.FORK_BRANCH }}" >> /tmp/commit_summary.md
-            echo "git merge origin/develop" >> /tmp/commit_summary.md
+            echo "git merge origin/${{ env.UPSTREAM_BRANCH }}" >> /tmp/commit_summary.md
             echo "\`\`\`" >> /tmp/commit_summary.md
 
             # Save summary for issue body
