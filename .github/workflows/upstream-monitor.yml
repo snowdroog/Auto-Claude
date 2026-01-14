@@ -128,13 +128,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet UPSTREAM_STATUS.md 2>/dev/null; then
+          # Add status file (handles both new and modified)
+          git add UPSTREAM_STATUS.md
+
+          # Check if there's anything to commit
+          if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git add UPSTREAM_STATUS.md
             git commit -m "chore: update upstream sync status [skip ci]"
             git push origin ${{ env.FORK_BRANCH }}
-            echo "Status file updated and pushed"
+            echo "Status file committed and pushed"
           fi
 
       - name: Summary
