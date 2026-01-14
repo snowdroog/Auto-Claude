@@ -1,0 +1,4 @@
+# This directory contains runtime data for the control plane
+# - specs/     - Input specs to build
+# - output/    - Build artifacts and logs
+# - workspace/ - Git workspace for builds

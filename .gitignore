@@ -178,3 +178,10 @@ OPUS_ANALYSIS_AND_IDEAS.md
 # Auto Claude generated files
 .security-key
 /shared_docs
+# ===========================
+# Docker Control Plane
+# ===========================
+docker/data/specs/
+docker/data/output/
+docker/data/workspace/
+!docker/data/.gitkeep

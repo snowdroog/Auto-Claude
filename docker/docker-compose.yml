@@ -1,0 +1,72 @@
+# Auto-Claude Control Plane - Local Development
+#
+# Usage:
+#   # Build the worker image
+#   docker-compose build worker
+#
+#   # Run a build (pass spec number)
+#   docker-compose run --rm worker --spec 001
+#
+#   # List specs
+#   docker-compose run --rm worker --list
+#
+#   # Run QA on completed build
+#   docker-compose run --rm worker --spec 001 --qa
+
+services:
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/worker/Dockerfile
+    image: auto-claude-worker:latest
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      - PROJECT_REPO_URL=${PROJECT_REPO_URL:-}
+      - PROJECT_BRANCH=${PROJECT_BRANCH:-}
+    volumes:
+      # Input: specs to build
+      - ./data/specs:/specs:ro
+      # Output: build artifacts, logs
+      - ./data/output:/output
+      # Workspace: where builds happen
+      - ./data/workspace:/workspace
+      # SSH keys for git operations (optional)
+      - ~/.ssh:/root/.ssh:ro
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # Redis for job queue (Phase 2)
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+
+  # Orchestrator (Phase 2)
+  # orchestrator:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/orchestrator/Dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+  #   depends_on:
+  #     - redis
+
+volumes:
+  redis-data:
+
+networks:
+  default:
+    name: auto-claude-network
