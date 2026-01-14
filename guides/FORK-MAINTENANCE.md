@@ -38,32 +38,34 @@ When new upstream commits are detected, the created issue includes:
 
 When you receive an upstream sync notification:
 
-### Option 1: Rebase (Cleaner History)
+### Option 1: Cherry-Pick Specific Commits (Recommended)
 
 ```bash
 # Fetch latest from origin (which points to upstream)
-git fetch origin
+git fetch origin develop
 
-# Rebase your develop branch
-git checkout develop
-git rebase origin/develop
+# View available commits
+git log --oneline origin/develop ^HEAD
 
-# Force push to fork (careful!)
-git push myfork develop --force-with-lease
+# Cherry-pick specific commits you want
+git cherry-pick <commit-hash>
+
+# Push to fork
+git push myfork snowdroog-clean
 ```
 
-### Option 2: Merge (Preserves Fork History)
+### Option 2: Merge All Upstream Changes
 
 ```bash
 # Fetch latest
-git fetch origin
+git fetch origin develop
 
-# Merge upstream changes
-git checkout develop
+# Merge upstream changes into your branch
+git checkout snowdroog-clean
 git merge origin/develop
 
 # Push to fork
-git push myfork develop
+git push myfork snowdroog-clean
 ```
 
 ### Resolving Conflicts

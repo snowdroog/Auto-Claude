@@ -17,7 +17,7 @@ permissions:
 env:
   UPSTREAM_REPO: AndyMik90/Auto-Claude
   UPSTREAM_BRANCH: develop
-  FORK_BRANCH: develop
+  FORK_BRANCH: snowdroog-clean
 
 jobs:
   check-upstream:
@@ -72,15 +72,14 @@ jobs:
             echo "" >> /tmp/commit_summary.md
             echo "### Sync Instructions" >> /tmp/commit_summary.md
             echo "\`\`\`bash" >> /tmp/commit_summary.md
-            echo "# Fetch latest upstream" >> /tmp/commit_summary.md
-            echo "git fetch origin" >> /tmp/commit_summary.md
+            echo "# Fetch latest upstream (origin points to AndyMik90/Auto-Claude)" >> /tmp/commit_summary.md
+            echo "git fetch origin develop" >> /tmp/commit_summary.md
             echo "" >> /tmp/commit_summary.md
-            echo "# Option 1: Rebase (cleaner history)" >> /tmp/commit_summary.md
-            echo "git checkout develop" >> /tmp/commit_summary.md
-            echo "git rebase origin/develop" >> /tmp/commit_summary.md
+            echo "# Cherry-pick specific commits you want" >> /tmp/commit_summary.md
+            echo "git cherry-pick <commit-hash>" >> /tmp/commit_summary.md
             echo "" >> /tmp/commit_summary.md
-            echo "# Option 2: Merge (preserves fork commits)" >> /tmp/commit_summary.md
-            echo "git checkout develop" >> /tmp/commit_summary.md
+            echo "# Or merge upstream develop into your branch" >> /tmp/commit_summary.md
+            echo "git checkout ${{ env.FORK_BRANCH }}" >> /tmp/commit_summary.md
             echo "git merge origin/develop" >> /tmp/commit_summary.md
             echo "\`\`\`" >> /tmp/commit_summary.md
 
