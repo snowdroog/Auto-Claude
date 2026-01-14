@@ -1,0 +1,138 @@
+name: Upstream Monitor
+
+# Monitor AndyMik90/Auto-Claude:develop for new commits
+# Creates a GitHub issue when upstream has changes we haven't synced
+
+on:
+  schedule:
+    # Run daily at 6am UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allow manual triggering for testing
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  UPSTREAM_REPO: AndyMik90/Auto-Claude
+  UPSTREAM_BRANCH: develop
+  FORK_BRANCH: develop
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FORK_BRANCH }}
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
+          git fetch upstream ${{ env.UPSTREAM_BRANCH }}
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          # Get commit counts
+          BEHIND_COUNT=$(git rev-list --count HEAD..upstream/${{ env.UPSTREAM_BRANCH }})
+          AHEAD_COUNT=$(git rev-list --count upstream/${{ env.UPSTREAM_BRANCH }}..HEAD)
+
+          echo "behind_count=$BEHIND_COUNT" >> $GITHUB_OUTPUT
+          echo "ahead_count=$AHEAD_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$BEHIND_COUNT" -gt 0 ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+
+            # Get commit summary (last 20 commits max)
+            echo "## New Upstream Commits" > /tmp/commit_summary.md
+            echo "" >> /tmp/commit_summary.md
+            echo "**$BEHIND_COUNT new commit(s)** from \`${{ env.UPSTREAM_REPO }}:${{ env.UPSTREAM_BRANCH }}\`" >> /tmp/commit_summary.md
+            echo "" >> /tmp/commit_summary.md
+
+            # List commits with date and author
+            git log HEAD..upstream/${{ env.UPSTREAM_BRANCH }} --oneline --format="- %h %s (%an, %ar)" -n 20 >> /tmp/commit_summary.md
+
+            if [ "$BEHIND_COUNT" -gt 20 ]; then
+              echo "" >> /tmp/commit_summary.md
+              echo "_...and $(($BEHIND_COUNT - 20)) more commits_" >> /tmp/commit_summary.md
+            fi
+
+            # Get files changed
+            echo "" >> /tmp/commit_summary.md
+            echo "### Files Changed" >> /tmp/commit_summary.md
+            echo "\`\`\`" >> /tmp/commit_summary.md
+            git diff --stat HEAD..upstream/${{ env.UPSTREAM_BRANCH }} | tail -n 20 >> /tmp/commit_summary.md
+            echo "\`\`\`" >> /tmp/commit_summary.md
+
+            # Add sync instructions
+            echo "" >> /tmp/commit_summary.md
+            echo "### Sync Instructions" >> /tmp/commit_summary.md
+            echo "\`\`\`bash" >> /tmp/commit_summary.md
+            echo "# Fetch latest upstream" >> /tmp/commit_summary.md
+            echo "git fetch origin" >> /tmp/commit_summary.md
+            echo "" >> /tmp/commit_summary.md
+            echo "# Option 1: Rebase (cleaner history)" >> /tmp/commit_summary.md
+            echo "git checkout develop" >> /tmp/commit_summary.md
+            echo "git rebase origin/develop" >> /tmp/commit_summary.md
+            echo "" >> /tmp/commit_summary.md
+            echo "# Option 2: Merge (preserves fork commits)" >> /tmp/commit_summary.md
+            echo "git checkout develop" >> /tmp/commit_summary.md
+            echo "git merge origin/develop" >> /tmp/commit_summary.md
+            echo "\`\`\`" >> /tmp/commit_summary.md
+
+            # Save summary for issue body
+            cat /tmp/commit_summary.md
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "Fork is up to date with upstream"
+          fi
+
+      - name: Check for existing issue
+        id: existing
+        if: steps.check.outputs.has_updates == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if there's already an open upstream sync issue
+          EXISTING=$(gh issue list --label "upstream-sync" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "existing_issue=$EXISTING" >> $GITHUB_OUTPUT
+            echo "Found existing issue #$EXISTING"
+          else
+            echo "existing_issue=" >> $GITHUB_OUTPUT
+            echo "No existing upstream sync issue"
+          fi
+
+      - name: Update existing issue
+        if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Update existing issue with new commit count
+          gh issue comment ${{ steps.existing.outputs.existing_issue }} --body-file /tmp/commit_summary.md
+          echo "Updated issue #${{ steps.existing.outputs.existing_issue }}"
+
+      - name: Create new issue
+        if: steps.check.outputs.has_updates == 'true' && steps.existing.outputs.existing_issue == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create new upstream sync issue
+          gh issue create \
+            --title "🔄 Upstream Sync: ${{ steps.check.outputs.behind_count }} new commit(s) available" \
+            --body-file /tmp/commit_summary.md \
+            --label "upstream-sync"
+          echo "Created new upstream sync issue"
+
+      - name: Summary
+        run: |
+          echo "## Upstream Monitor Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Upstream:** ${{ env.UPSTREAM_REPO }}:${{ env.UPSTREAM_BRANCH }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Fork behind:** ${{ steps.check.outputs.behind_count }} commits" >> $GITHUB_STEP_SUMMARY
+          echo "- **Fork ahead:** ${{ steps.check.outputs.ahead_count }} commits" >> $GITHUB_STEP_SUMMARY
+          echo "- **Has updates:** ${{ steps.check.outputs.has_updates }}" >> $GITHUB_STEP_SUMMARY

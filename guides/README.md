@@ -7,6 +7,7 @@ Detailed documentation for Auto Claude setup and usage.
 | Guide | Description |
 |-------|-------------|
 | **[CLI-USAGE.md](CLI-USAGE.md)** | Terminal-only usage for power users, headless servers, and CI/CD |
+| **[FORK-MAINTENANCE.md](FORK-MAINTENANCE.md)** | Upstream monitoring, syncing, and contributing back |
 
 ## Quick Links
 
